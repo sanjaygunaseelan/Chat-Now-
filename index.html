@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080808">
+<title>Chat Now</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080808;color:white;font-family:Arial,sans-serif}
+button{cursor:pointer;border:0;color:white;background:none}
+header{height:58px;padding:0 16px;display:flex;align-items:center;
+justify-content:space-between;border-bottom:1px solid #222;
+position:sticky;top:0;background:#080808;z-index:5}
+.logo{font-size:25px;font-weight:900;letter-spacing:-1px}
+.logo span{color:#a855f7}
+.actions{display:flex;gap:20px;font-size:23px}
+.page{display:none;padding-bottom:85px}
+.page.active{display:block}
+.stories{display:flex;gap:14px;overflow-x:auto;padding:16px}
+.stories::-webkit-scrollbar{display:none}
+.story{min-width:65px;text-align:center;font-size:11px;color:#bbb}
+.story img{width:62px;height:62px;border-radius:50%;
+object-fit:cover;padding:3px;border:2px solid #a855f7}
+.post{border-bottom:1px solid #252525;margin-bottom:15px}
+.post-head{display:flex;align-items:center;gap:10px;padding:12px}
+.avatar{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.username{font-size:13px;font-weight:bold}
+.location{font-size:11px;color:#999;margin-top:3px}
+.post-img{width:100%;max-height:520px;object-fit:cover;display:block}
+.post-actions{display:flex;gap:18px;padding:12px;font-size:23px}
+.post-actions button{font-size:23px}
+.post-info{padding:0 13px 15px;font-size:13px;line-height:1.7}
+.muted{color:#888}
+.bottom{position:fixed;bottom:0;left:0;right:0;height:65px;
+background:#080808;border-top:1px solid #252525;
+display:flex;justify-content:space-around;align-items:center;z-index:10}
+.bottom button{font-size:23px;display:flex;flex-direction:column;
+align-items:center;gap:3px;color:#888}
+.bottom button small{font-size:9px}
+.bottom button.selected{color:#a855f7}
+.section-title{padding:18px;font-size:22px;font-weight:bold}
+.search{margin:12px;width:calc(100% - 24px);padding:13px;
+background:#202020;border:0;border-radius:12px;color:white;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.grid img{width:100%;aspect-ratio:1;object-fit:cover}
+.reel{height:75vh;position:relative;background:#181818}
+.reel img{width:100%;height:100%;object-fit:cover}
+.reel-info{position:absolute;bottom:20px;left:15px;text-shadow:0 1px 5px black}
+.chat-item{display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid #222}
+.chat-item img{width:48px;height:48px;border-radius:50%;object-fit:cover}
+.chat-item p{font-size:13px;color:#999;margin-top:5px}
+.profile-top{text-align:center;padding:25px}
+.profile-top img{width:90px;height:90px;border-radius:50%;object-fit:cover}
+.stats{display:flex;justify-content:space-around;padding:20px}
+.stats div{text-align:center;font-size:14px}
+.stats b{display:block;font-size:19px}
+.purple{background:#9333ea;padding:10px 20px;border-radius:8px;color:white}
+input:focus{outline:1px solid #a855f7}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">Chat<span>Now</span></div>
+ <div class="actions">
+  <button onclick="show('notifications')">♡</button>
+  <button onclick="show('chat')">✉</button>
+ </div>
+</header>
+
+<!-- HOME -->
+<section id="home" class="page active">
+ <div class="stories" id="stories">
+  <div class="story">
+   <img src="https://i.pravatar.cc/100?img=12">
+   <p>Your story +</p>
+  </div>
+  <div class="story"><img src="https://i.pravatar.cc/100?img=5"><p>Priya</p></div>
+  <div class="story"><img src="https://i.pravatar.cc/100?img=8"><p>Rahul</p></div>
+  <div class="story"><img src="https://i.pravatar.cc/100?img=9"><p>David</p></div>
+  <div class="story"><img src="https://i.pravatar.cc/100?img=16"><p>Anu</p></div>
+  <div class="story"><img src="https://i.pravatar.cc/100?img=22"><p>Kumar</p></div>
+ </div>
+
+ <div id="feed"></div>
+</section>
+
+<!-- EXPLORE -->
+<section id="explore" class="page">
+ <h2 class="section-title">Explore</h2>
+ <input class="search" placeholder="Search people, posts..." oninput="searchPosts(this.value)">
+ <div class="grid" id="exploreGrid"></div>
+</section>
+
+<!-- REELS -->
+<section id="reels" class="page">
+ <h2 class="section-title">Reels</h2>
+ <div class="reel">
+  <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800">
+  <div class="reel-info">
+   <b>@travel_world</b>
+   <p>Explore the world 🌍</p>
+  </div>
+ </div>
+</section>
+
+<!-- CHAT -->
+<section id="chat" class="page">
+ <h2 class="section-title">Messages 🔒</h2>
+ <input class="search" placeholder="Search messages">
+ <div id="chatList">
+  <div class="chat-item" onclick="openChat('Priya')">
+   <img src="https://i.pravatar.cc/100?img=5">
+   <div><b>Priya</b><p>Tap to open conversation</p></div>
+  </div>
+  <div class="chat-item" onclick="openChat('Rahul')">
+   <img src="https://i.pravatar.cc/100?img=8">
+   <div><b>Rahul</b><p>Tap to open conversation</p></div>
+  </div>
+ </div>
+ <div id="conversation" style="display:none;padding:15px">
+  <button onclick="closeChat()">← Back</button>
+  <h3 id="chatName" style="padding:15px"></h3>
+  <div id="messages" style="min-height:200px"></div>
+  <input class="search" id="messageInput" placeholder="Write a message...">
+  <button class="purple" onclick="sendMessage()">Send</button>
+ </div>
+</section>
+
+<!-- PROFILE -->
+<section id="profile" class="page">
+ <div class="profile-top">
+  <img src="https://i.pravatar.cc/200?img=12">
+  <h2 style="margin:12px">Your Name</h2>
+  <p class="muted">@yourusername</p>
+  <p style="margin:10px">Welcome to Chat Now ✨</p>
+  <button class="purple" onclick="alert('Profile editing will be connected to your account backend.')">Edit Profile</button>
+ </div>
+ <div class="stats">
+  <div><b>0</b>Posts</div>
+  <div><b>0</b>Followers</div>
+  <div><b>0</b>Following</div>
+ </div>
+ <div class="grid" id="profileGrid"></div>
+</section>
+
+<!-- NOTIFICATIONS -->
+<section id="notifications" class="page">
+ <h2 class="section-title">Notifications</h2>
+ <p style="padding:18px;color:#999">You're all caught up!</p>
+</section>
+
+<nav class="bottom">
+ <button class="selected" onclick="show('home',this)">⌂<small>Home</small></button>
+ <button onclick="show('explore',this)">⌕<small>Explore</small></button>
+ <button onclick="show('reels',this)">▶<small>Reels</small></button>
+ <button onclick="show('chat',this)">✉<small>Chat</small></button>
+ <button onclick="show('profile',this)">◎<small>Profile</small></button>
+</nav>
+
+<script>
+const posts=[
+ {user:"Travel World",img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=900",caption:"Beautiful world 🌍",avatar:8},
+ {user:"Photography",img:"https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=900",caption:"Nature is beautiful ❤️",avatar:12},
+ {user:"Lifestyle",img:"https://images.unsplash.com/photo-1517841905240-472988babdf9?w=900",caption:"Enjoy every moment ✨",avatar:5}
+];
+
+const feed=document.getElementById("feed");
+
+function renderPosts(items){
+ feed.innerHTML="";
+ items.forEach((p,i)=>{
+  feed.innerHTML+=`
+  <article class="post">
+   <div class="post-head">
+    <img class="avatar" src="https://i.pravatar.cc/100?img=${p.avatar}">
+    <div><div class="username">${p.user}</div>
+    <div class="location">Chat Now</div></div>
+    <span style="margin-left:auto">•••</span>
+   </div>
+   <img class="post-img" src="${p.img}">
+   <div class="post-actions">
+    <button onclick="like(this)">♡</button>
+    <button onclick="comment()">♧</button>
+    <button onclick="alert('Sharing feature coming soon')">➤</button>
+    <button style="margin-left:auto" onclick="save(this)">♧</button>
+   </div>
+   <div class="post-info">
+    <b class="likes">0 likes</b><br>
+    <b>${p.user}</b> ${p.caption}<br>
+    <span class="muted">View all comments</span>
+   </div>
+  </article>`;
+ });
+}
+
+function like(btn){
+ let liked=btn.dataset.liked==="true";
+ btn.dataset.liked=(!liked).toString();
+ btn.textContent=liked?"♡":"♥";
+ btn.style.color=liked?"white":"#ed315f";
+ let count=btn.parentElement.nextElementSibling.querySelector(".likes");
+ let n=parseInt(count.textContent);
+ count.textContent=(liked?n-1:n+1)+" likes";
+}
+
+function save(btn){
+ btn.textContent=btn.textContent==="♧"?"▣":"♧";
+}
+
+function comment(){
+ alert("Comments feature will be connected to the backend.");
+}
+
+function show(id,btn){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".bottom button").forEach(b=>b.classList.remove("selected"));
+ if(btn)btn.classList.add("selected");
+ else if(id==="notifications"){}
+}
+
+function searchPosts(value){
+ let q=value.toLowerCase();
+ document.getElementById("exploreGrid").innerHTML=
+ posts.filter(p=>p.user.toLowerCase().includes(q)||p.caption.toLowerCase().includes(q))
+ .map(p=>`<img src="${p.img}">`).join("");
+}
+
+function openChat(name){
+ document.getElementById("chatList").style.display="none";
+ document.getElementById("conversation").style.display="block";
+ document.getElementById("chatName").textContent=name+" 🔒";
+}
+
+function closeChat(){
+ document.getElementById("conversation").style.display="none";
+ document.getElementById("chatList").style.display="block";
+}
+
+function sendMessage(){
+ let input=document.getElementById("messageInput");
+ if(!input.value.trim())return;
+ let message=document.createElement("p");
+ message.textContent="You: "+input.value;
+ message.style.cssText="background:#302044;padding:12px;margin:8px;border-radius:12px";
+ document.getElementById("messages").appendChild(message);
+ input.value="";
+}
+
+renderPosts(posts);
+
+document.getElementById("exploreGrid").innerHTML=
+posts.map(p=>`<img src="${p.img}">`).join("");
+</script>
+</body>
+</html>
